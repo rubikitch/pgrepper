@@ -1,0 +1,85 @@
+#+TITLE: Pgrepper: (Peco|Powerful|Parallel) Grepper
+* (Peco|Powerful|Parallel) Grepper
+This tiny Ruby script enables narrowing by multiple grep(s).
+It aims to enhance [[https://github.com/peco/peco][peco]] as a custom filter, but you can use it anywhere.
+It is based on searcher of Emacs's incremental completion and selection narrowing framework,
+[[https://github.com/emacs-helm/helm/][helm]] (helm-multi-match) and [[http://repo.or.cz/anything-config.git][anything]] (anything-match-plugin).
+
+* Feature
+- Very small. Only a wrapper to zsh
+- Show zsh command line
+- Use any searcher for first query (e.g. sary, csearch, etc)
+- Migemo feature by cmigemo
+- Word search
+* Depends
+Pgrepper uses external commands.
+- Ruby
+- zsh
+- grep
+- [[http://www.kaoriya.net/software/cmigemo/][cmigemo]] (optional)
+- nkf (optional)
+* Sample configuration for peco
+My peco configuration file (~/.config/peco/config.json)
+
+#+BEGIN_EXAMPLE
+{
+    "CustomFilter": {
+        "eijiro": {
+            "Cmd": "/r/src/pgrepper/pgrepper",
+            "Args": ["--searcher=sary -i", "--fold=90", "--dummy=no", "$QUERY", "/log2/sary/eijiro.all.utf8.txt"]
+        },
+        "default": {
+            "Cmd": "/r/src/pgrepper/pgrepper",
+            "Args": ["$QUERY", "--dummy=last"],
+            "BufferThreshold": 10000
+        },
+        "migemo": {
+            "Cmd": "/r/src/pgrepper/pgrepper",
+            "Args": ["--migemo", "$QUERY", "--dummy=last"],
+            "BufferThreshold": 100000
+        },
+        "filelist": {
+            "Cmd": "/r/src/pgrepper/pgrepper",
+            "Args": ["--dummy=first", "$QUERY",
+                     "/tmp/.recentf", "/log2/sary/all.filelist"],
+            "BufferThreshold": 100000
+        }
+    },
+    "SingleKeyJump": {
+        "ShowPrefix": true
+    },
+    "Keymap": {
+        "@": "peco.ToggleSingleKeyJump",
+        "C-g": "peco.Cancel",
+        "C-v": "peco.ScrollPageDown",
+        "M-v": "peco.ScrollPageUp",
+        "C-f": "peco.ScrollRight",
+        "C-b": "peco.ScrollLeft",
+        "M-a": "peco.SelectAll",
+        "Pgup": "peco.ScrollPageUp",
+        "Pgdn": "peco.ScrollPageDown",
+        "C-l": "peco.RefreshScreen",
+        "C-d": "peco.DeleteBackwardWord",
+        "C-k": "peco.DeleteAll",
+        "C-u": "peco.DeleteAll"
+    }
+}
+
+#+END_EXAMPLE
+
+* Sample helm command
+#+BEGIN_SRC emacs-lisp :results silent
+(defun peco-pgrepper-sample ()
+  (interactive)
+  (helm :sources '(((name . "pgrepper sample")
+                    (candidates-process
+                     . (lambda ()
+                         (start-process "pgrepper" nil
+                                        "/r/src/pgrepper/pgrepper" helm-pattern
+                                        "/r/.emacs.d/init.el")))))))
+#+END_SRC
+
+* What commands does pgrepper call?
+#+INCLUDE: "pgrepper-test.sxmp" example fundamental
+
+
