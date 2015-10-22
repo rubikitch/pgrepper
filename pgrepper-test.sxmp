@@ -1,0 +1,34 @@
+$ ./pgrepper -n 'foo bar'
+grep -Ehi foo |grep -Ei  bar
+$ ./pgrepper -n 'foo  bar'
+grep -Ehi foo\ bar 
+$ ./pgrepper -n 'foo&bar'
+grep -Ehi foo\&bar 
+$ ./pgrepper -n --searcher='sary -i' 'foo&bar'
+sary -i foo\&bar 
+$ ./pgrepper -n 'foo&bar !baz'
+grep -Ehi foo\&bar |grep -Ei -v baz
+$ ./pgrepper -n 'foo bar' file1 
+grep -Ehi foo file1|grep -Ei  bar
+$ ./pgrepper -n --searcher='sary -i' 'foo bar' file1 
+sary -i foo file1|grep -Ei  bar
+$ ./pgrepper -n 'foo bar' file1 file2
+grep -Ehi foo file1 file2|grep -Ei  bar
+$ ./pgrepper -n computer /log2/sary/eijiro.all.utf8.txt
+grep -Ehi computer /log2/sary/eijiro.all.utf8.txt
+$ ./pgrepper -n --fold computer /log2/sary/eijiro.all.utf8.txt
+grep -Ehi computer /log2/sary/eijiro.all.utf8.txt|nkf -wF80
+$ ./pgrepper -n --fold=90 computer /log2/sary/eijiro.all.utf8.txt
+grep -Ehi computer /log2/sary/eijiro.all.utf8.txt|nkf -wF90
+$ ./pgrepper -n --dummy=first 'foo bar'
+grep -Ehi foo |grep -Ei  bar
+$ ./pgrepper -n --dummy=last 'foo bar'
+grep -Ehi foo |grep -Ei  bar
+$ ./pgrepper -n --dummy=no 'foo bar'
+grep -Ehi foo |grep -Ei  bar
+$ ./pgrepper -n 'm:nihongo' file
+(a=`cmigemo -n -q -d /usr/share/cmigemo/utf-8/migemo-dict -w nihongo`;grep -Ei $a file)
+$ ./pgrepper -n --searcher='sary -i' 'm:nihongo' file
+(a=`cmigemo -n -q -d /usr/share/cmigemo/utf-8/migemo-dict -w nihongo`;grep -Ei $a file)
+$ ./pgrepper -n --migemo 'migemo dayo' --migemo-dict=/tmp/migemo.dict
+(a=`cmigemo -n -q -d /tmp/migemo.dict -w migemo`;grep -Ei $a )|(a=`cmigemo -n -q -d /tmp/migemo.dict -w dayo`;grep -Ei $a )

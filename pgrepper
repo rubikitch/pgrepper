@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+require 'shellwords'
+require 'optparse'
+PROGRAM_VERSION=%w[1.0 release]
+conf = {
+  :searcher => "grep -Ehi",
+  :dryrun => false,
+  :fold => false,
+  :dummy => :last,
+  :migemo => false,
+  :migemo_dict => "/usr/share/cmigemo/utf-8/migemo-dict",
+}
+ARGV.options do |o|
+  o.program_name = File.basename($0)
+  o.version, o.release = PROGRAM_VERSION
+  o.banner = "#{o.ver}\nUsage: #{o.program_name} [options]\n\n"
+  o.on("--dummy [type]", [:no, :first, :last], "Put query itself (no, first, last)") {|x| conf[:dummy] = x }
+  o.on("--searcher=PROG", "Use PROG for searcher for first query") {|x| conf[:searcher] = x }
+  o.on("--fold=[N]", "folding result (default:80)") {|x| conf[:fold] = "nkf -wF#{x||80}" }
+  o.on("--migemo", "Use migemo for all queries"){|x| conf[:migemo] = true}
+  o.on("--migemo-dict=FILE", "Set migemo dictionary"){|x| conf[:migemo_dict] = x}
+  o.on("--dryrun", "-n", "Show only print command, do not execute") {|x| conf[:dryrun] = true }
+  o.parse!
+end
+
+def migemo_cmd(q, conf)
+  %Q!`cmigemo -n -q -d #{conf[:migemo_dict].shellescape} -w #{q.shellescape}`!
+end
+
+def parse_query(q,conf)
+  q.gsub(/  /, "\177").split.map{|s|
+    prefix = conf[:migemo] ? 'm:' : ''
+    prefix << s.gsub(/\177/, ' ')
+  }
+end
+
+def command(conf, query, *files)
+  args = parse_query(query,conf).map.with_index {|a,i|
+    v, q = a[0] == ?! ? ["-v", a[1..-1]] : ["", a]
+    files_esc = files.map(&:shellescape).join ' '
+    if q =~ /^m:(.+)$/
+      "(a=%s;grep -Ei $a %s)" % [migemo_cmd($1, conf), (i==0?files_esc:"")]
+    elsif q =~ /^g:(.+)$/
+      "grep -Ei %s %s" % [$1.shellescape, (i==0?files_esc:"")]
+    elsif q =~ /^w:(.+)$/
+      "grep -Eiw %s %s" % [$1.shellescape, (i==0?files_esc:"")]
+    elsif i == 0
+      [conf[:searcher], q.shellescape, files_esc].join ' '
+    else
+      "grep -Ei %s %s" % [v, q.shellescape]
+    end
+  }
+  args << conf[:fold] if conf[:fold]
+  args.join("|")
+end
+
+query, = ARGV
+cmd = command(conf, *ARGV)
+if conf[:dryrun]
+  puts cmd
+  exit 0
+end
+puts query if conf[:dummy] == :first
+system "zsh", "-c", cmd
+puts query if conf[:dummy] == :last
