@@ -11,14 +11,22 @@ It is based on searcher of Emacs's incremental completion and selection narrowin
 - Use any searcher for first query (e.g. sary, csearch, etc)
 - Migemo feature by cmigemo
 - Word search
-* Depends
+* Depend on
 Pgrepper uses external commands.
 - Ruby
 - zsh
 - grep
 - [[http://www.kaoriya.net/software/cmigemo/][cmigemo]] (optional)
 - nkf (optional)
-* Sample configuration for peco
+* Installation
+Pgrepper is single script, so you can install it easily.
+
+#+BEGIN_EXAMPLE
+$ wget -O ~/bin/pgrepper https://raw.githubusercontent.com/rubikitch/pgrepper/master/pgrepper
+$ chmod +x ~/bin/pgrepper
+#+END_EXAMPLE
+* Sample
+** Sample peco configuration 
 My peco configuration file (~/.config/peco/config.json)
 
 #+BEGIN_EXAMPLE
@@ -67,7 +75,7 @@ My peco configuration file (~/.config/peco/config.json)
 
 #+END_EXAMPLE
 
-* Sample helm command
+** Sample helm command
 #+BEGIN_SRC emacs-lisp :results silent
 (defun peco-pgrepper-sample ()
   (interactive)
