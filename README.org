@@ -80,6 +80,5 @@ My peco configuration file (~/.config/peco/config.json)
 #+END_SRC
 
 * What commands does pgrepper call?
-#+INCLUDE: "pgrepper-test.sxmp" example fundamental
-
-
+`pgrepper -n' shows zsh command line, then you can understand what is going on.
+[[https://raw.githubusercontent.com/rubikitch/pgrepper/master/pgrepper-test.sxmp][See pgrepper-test.sxmp]]
