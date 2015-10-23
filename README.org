@@ -5,6 +5,8 @@ It aims to enhance [[https://github.com/peco/peco][peco]] as a custom filter, bu
 It is based on searcher of Emacs's incremental completion and selection narrowing framework,
 [[https://github.com/emacs-helm/helm/][helm]] (helm-multi-match) and [[http://repo.or.cz/anything-config.git][anything]] (anything-match-plugin).
 
+[[file:eijiro-demo.gif][Demo:Eijiro (huge English-Japanese dictionary) search by pgrepper]]
+
 * Feature
 - Very small. Only a wrapper to zsh
 - Show zsh command line
