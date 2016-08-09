@@ -9,6 +9,7 @@ conf = {
   :dummy => :last,
   :migemo => false,
   :migemo_dict => "/usr/share/cmigemo/utf-8/migemo-dict",
+  :first_options => "",
 }
 ARGV.options do |o|
   o.program_name = File.basename($0)
@@ -20,6 +21,7 @@ ARGV.options do |o|
   o.on("--migemo", "Use migemo for all queries"){|x| conf[:migemo] = true}
   o.on("--migemo-dict=FILE", "Set migemo dictionary"){|x| conf[:migemo_dict] = x}
   o.on("--dryrun", "-n", "Show only print command, do not execute") {|x| conf[:dryrun] = true }
+  o.on("--lineno", "Show line number") {|x| conf[:first_options] << " -n " }
   o.parse!
 end
 
@@ -37,7 +39,7 @@ end
 def command(conf, query, *files)
   args = parse_query(query,conf).map.with_index {|a,i|
     v, q = a[0] == ?! ? ["-v", a[1..-1]] : ["", a]
-    files_esc = files.map(&:shellescape).join ' '
+    files_esc = conf[:first_options] + files.map(&:shellescape).join(' ')
     if q =~ /^m:(.+)$/
       "(a=%s;grep -Ei $a %s)" % [migemo_cmd($1, conf), (i==0?files_esc:"")]
     elsif q =~ /^g:(.+)$/
